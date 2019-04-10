@@ -10,17 +10,20 @@ class WikiSpiderSpider(scrapy.Spider):
     start_urls = ['https://en.wikipedia.org/wiki/January_1']
 
     def parse(self, response):
-
+        #instanciation item
         items = WikiscrapyPart2Item()
+        #initialisation
+        day_one = '/wiki/January_1'
 
-        events = response.css('#mw-content-text h3+ ul li').extract()
         all_days = response.css('tbody tr td li a::attr(href)').extract()
+        # ignorer le dernier element => list_of_non-standard_dates
+        all_days.pop(-1)
+        all_days.insert(0,day_one)
 
-
-
-            #print ('year: '+year+' event: '+event)
 
         for day in all_days:
+
+            events = response.css('#mw-content-text h3+ ul li').extract()
             next_url ='https://en.wikipedia.org/'+str(day)
             # recuper day et month
             day = re.search('([A-Za-z]*)_([0-9]*)', day)
@@ -42,4 +45,4 @@ class WikiSpiderSpider(scrapy.Spider):
 
                 yield items
 
-            yield response.follow(next_url, callback=self.parse)
+                yield response.follow(next_url, callback=self.parse)
